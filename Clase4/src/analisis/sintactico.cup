@@ -1,0 +1,61 @@
+
+package analisis;
+
+// importaciones si fuese necesario
+import java_cup.runtime.Symbol;
+
+// area de codigo -> parser code
+parser code
+{:
+    scanner s;
+    parser(scanner s){this.s=s;}
+
+    public void syntax_error(Symbol s){
+        System.out.println("Error Sintactico en la linea " +
+            (s.left) + " y columna " + (s.right) +
+            ". No se esperaba el componente: " + (s.value) + ".");
+    }
+
+    public void unrecovered_syntax_error (Symbol s) throws java.lang.Exception{
+        System.out.println("Error Sintactico no recuperable en la linea" +
+            (s.left) + " y columna " + (s.right) +
+            ". No se esperaba el componente: " + (s.value) + ".");
+    }
+
+:}
+
+// area de codigo -> accion
+
+action code
+{:
+    String codigoUsr = "";
+:}
+
+terminal FINCADENA, IMPRIMIR;
+terminal MAS, MENOS, MULT, DIV, PAR1, PAR2;
+terminal String CADENA, ENTERO, DECIMAL;
+
+nonterminal String INICIO;
+nonterminal INSTRUCCIONES, INSTRUCCION;
+nonterminal Double EXPRESION;
+
+start with INICIO;
+
+INICIO ::= INSTRUCCIONES    {: RESULT = codigoUsr; :}
+;
+
+INSTRUCCIONES ::= INSTRUCCIONES INSTRUCCION
+                | INSTRUCCION
+;
+
+INSTRUCCION ::= IMPRIMIR PAR1 EXPRESION:e PAR2 FINCADENA  {: codigoUsr+=e+"\n"; :}
+              | IMPRIMIR PAR1 CADENA:c PAR2 FINCADENA     {: codigoUsr+=c+"\n"; :}
+;
+
+EXPRESION ::= MAS EXPRESION:a EXPRESION:b   {: RESULT = a + b; :}
+            | MENOS EXPRESION:a EXPRESION:b {: RESULT = a - b; :}
+            | MULT EXPRESION:a EXPRESION:b  {: RESULT = a * b; :}
+            | DIV EXPRESION:a EXPRESION:b   {: RESULT = a / b; :}
+            | ENTERO:a                      {: RESULT = new Double(a); :}
+            | DECIMAL:a                     {: RESULT = new Double(a); :}
+;
