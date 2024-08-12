@@ -1,0 +1,75 @@
+package analisis;
+
+//importaciones
+import java_cup.runtime.Symbol;
+import java.util.LinkedList;
+
+//parser code -> codigo que pueden acceder fuera de la clase
+parser code
+{:
+    public String codigoUsr = "";
+    
+    public LinkedList<Errores> listaErrores = new LinkedList<Errores>();
+
+    public void syntax_error(Symbol s){
+        listaErrores.add(new Errores(
+                "Sintactico Recuperable",
+                "No se esperaba el componente "+s.value,
+                s.left,
+                s.right));
+    }
+
+    public void unrecovered_syntax_error (Symbol s){
+        listaErrores.add(new Errores(
+            "Sintactico No Recuperable",
+            "No se esperaba el componente "+s.value,
+            s.left,
+            s.right));
+    }
+
+:}
+
+//codigo accion -> codigo de uso interno de cup
+action code
+{:
+    Operaciones o = new Operaciones();
+:}
+
+terminal String CADENA, NUMEROS;
+terminal PUNTO, FINCADENA, TKCONSOLE, TKLOG;
+terminal MULT, DIV, PAR1, PAR2, MAS, MENOS, UMENOS;
+
+nonterminal String INICIO;
+nonterminal INSTRUCCIONES, INSTRUCCION;
+nonterminal IMPRIMIR;
+nonterminal Double EXPRESION;
+
+precedence left MAS, MENOS;
+precedence left MULT, DIV;
+precedence left UMENOS;
+
+start with INICIO;
+
+INICIO ::= INSTRUCCIONES {: RESULT = codigoUsr; :}
+;
+
+INSTRUCCIONES ::= INSTRUCCIONES INSTRUCCION
+                | INSTRUCCION
+;
+
+INSTRUCCION ::= IMPRIMIR
+            | error FINCADENA
+;
+
+IMPRIMIR ::= TKCONSOLE PUNTO TKLOG PAR1 CADENA:c PAR2 FINCADENA         {: codigoUsr+=c+"\n"; :}
+           | TKCONSOLE PUNTO TKLOG PAR1 EXPRESION:e PAR2 FINCADENA      {: codigoUsr+=e+"\n"; :}
+;
+
+EXPRESION ::= MENOS EXPRESION:a                 {: RESULT=o.Neg(a); :}%prec UMENOS
+            | EXPRESION:a MAS EXPRESION:b       {: RESULT=o.Suma(a,b); :}
+            | EXPRESION:a MENOS EXPRESION:b       {: RESULT=o.Resta(a,b); :}
+            | EXPRESION:a MULT EXPRESION:b       {: RESULT=o.Mult(a,b); :}
+            | EXPRESION:a DIV EXPRESION:b       {: RESULT=o.Div(a,b); :}
+            | NUMEROS:a                         {: RESULT=o.CastValue(a); :}
+            | PAR1 EXPRESION:a PAR2             {: RESULT=a; :}
+;
