@@ -1,0 +1,31 @@
+{
+  "name": "clase8",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc -w",
+    "jison": "jison src/controllers/analizador/analizador.jison && move analizador.js build/controllers/analizador",
+    "dev": "nodemon build/index",
+    "start": "node build/index"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "express": "^4.21.0",
+    "jison": "^0.4.18",
+    "morgan": "^1.10.0",
+    "nodemon": "^3.1.7",
+    "typescript": "^5.6.2"
+  },
+  "devDependencies": {
+    "@types/body-parser": "^1.19.5",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/morgan": "^1.9.9"
+  }
+}
